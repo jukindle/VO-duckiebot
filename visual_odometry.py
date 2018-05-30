@@ -69,9 +69,11 @@ class VisualOdometry:
 		self.px_ref = self.px_cur
 
 	def processFrame(self, frame_id):
+                if not self.px_ref.any(): return
 		self.px_ref, self.px_cur = featureTracking(self.last_frame, self.new_frame, self.px_ref)
 		E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, method=cv2.RANSAC, prob=0.999, threshold=1.0)
-		_, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp = self.pp)
+		if E is None: return
+                _, R, t, mask = cv2.recoverPose(E.copy(), self.px_cur, self.px_ref, focal=self.focal, pp = self.pp)
 		absolute_scale = self.getAbsoluteScale(frame_id)
 		if(absolute_scale > 0.1): # TODO: if we change scaling, this needs to be changes as well I think
 			self.cur_t = self.cur_t + absolute_scale*self.cur_R.dot(t)

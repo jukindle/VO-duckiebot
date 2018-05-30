@@ -13,8 +13,12 @@ import time
 ########################
 from visual_odometry import PinholeCamera, VisualOdometry
 
+# Measure time
+ms_start = int(round(time.time() * 1000))
+
 # Sleep time for debugging
-sleeptime = 0.3
+sleeptime = 0#0.3
+plotting = True
 
 # Cam: width, height, focal length x, focal length y, cam center x, cam center y
 cam = PinholeCamera(640.0, 480.0, 1192, 1192, 320.0, 240.0)
@@ -42,14 +46,18 @@ for img_id in range(1,105):
 	# Obtain drawing pixels
 	draw_x, draw_y = -int(x)*4+290, int(z)*4+290
 	# Draw
-	cv2.circle(traj, (draw_x,draw_y), 1, (img_id*255/4540,255-img_id*255/4540,0), 1)
-	cv2.rectangle(traj, (10, 20), (600, 60), (0,0,0), -1)
-	text = "Coordinates: x=%2fm y=%2fm z=%2fm"%(x,y,z)
-	cv2.putText(traj, text, (20,40), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1, 8)
+	if plotting:
+		cv2.circle(traj, (draw_x,draw_y), 1, (img_id*255/4540,255-img_id*255/4540,0), 1)
+		cv2.rectangle(traj, (10, 20), (600, 60), (0,0,0), -1)
+		text = "Coordinates: x=%2fm y=%2fm z=%2fm"%(x,y,z)
+		cv2.putText(traj, text, (20,40), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1, 8)
 
-	cv2.imshow('Road facing camera', img)
-	cv2.imshow('Trajectory', traj)
-	cv2.waitKey(1)
-	time.sleep(sleeptime)
+		cv2.imshow('Road facing camera', img)
+		cv2.imshow('Trajectory', traj)
+		cv2.waitKey(1)
+		time.sleep(sleeptime)
 
+# Measure time
+ms_end =  int(round(time.time() * 1000))
+print("Process took " + str(ms_end - ms_start) + "ms with a sleeptime " + str(sleeptime) + "s and plotting " + str(plotting))
 cv2.imwrite('map.png', traj)
